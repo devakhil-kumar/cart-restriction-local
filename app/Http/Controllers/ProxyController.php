@@ -114,6 +114,7 @@ class ProxyController extends Controller
         }
     }
 
+    
     public function handle(Request $request)
     {
         Log::info('Proxy hit', $request->all());
