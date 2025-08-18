@@ -3,7 +3,7 @@ let lastVariantIds = '';
 let locationTagCache = null;
 
 function loadExternalCSS() {
-  const baseUrl = 'https://picks-street-egg-big.trycloudflare.com';
+  const baseUrl = 'https://laravel-app-production-38b2.up.railway.app';
   const cssUrl = `${baseUrl}/cart.css`;
   if (!document.querySelector(`link[href="${cssUrl}"]`)) {
     const link = document.createElement('link');
