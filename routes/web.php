@@ -21,25 +21,41 @@ Route::get('/cart-check.js', function () {
 });
 
 // OAuth start
-Route::get('/shopify/install', [ShopifyController::class, 'install']);
+Route::get('/shopify/install', [ShopifyController::class, 'install'])->name('shopify.install');
 Route::get('/shopify/callback', [ShopifyController::class, 'callback'])->name('shopify.callback');
 
+// Uninstall webhook (optional)
+Route::post('/shopify/uninstall', [ShopifyController::class, 'uninstall'])->name('shopify.uninstall');
+
 // App proxy handler
-Route::get('/proxy-handler-local', [ProxyController::class, 'handle']);
+Route::get('/proxy-handler-local', [ProxyController::class, 'handle'])->name('shopify.proxy');
 
 Route::get('/', function (Request $request) {
     $shop = request()->get('shop'); // Get ?shop= param if passed
 
     if (!$shop) {
         return view('welcome');
-        //return response("Missing shop parameter.", 400);
     }
-    $encrypted = ShopStorage::get($shop);
-    $accessToken = ShopStorage::decryptToken($encrypted);
 
-    if ($accessToken) {
-        return view('shopify.dashboard', ['shop' => $shop]);
-    } else {
+    try {
+        // Check if shop exists and has valid access token
+        $shopModel = ShopStorage::getShop($shop);
+        
+        if ($shopModel && $shopModel->access_token) {
+            return view('shopify.dashboard', [
+                'shop' => $shop,
+                'installed_at' => $shopModel->installed_at
+            ]);
+        } else {
+            return view('shopify.not_installed', ['shop' => $shop]);
+        }
+        
+    } catch (\Exception $e) {
+        \Log::error('Error checking shop status', [
+            'shop' => $shop,
+            'error' => $e->getMessage()
+        ]);
+        
         return view('shopify.not_installed', ['shop' => $shop]);
     }
 })->name('shopify.home');
