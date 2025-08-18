@@ -76,9 +76,8 @@ class ProxyController extends Controller
                 })
                 ->toArray();
 
+            $allLocations = [];
             $conflicts = [];
-            $hasMultiLocationProducts = false;
-            $allProductLocations = [];
 
             foreach ($variantIds as $variantId) {
                 if (empty(trim($variantId))) {
@@ -119,7 +118,7 @@ class ProxyController extends Controller
                 $size = trim($exploded[0]);
                 $sku = $variant['sku'];
 
-                // Fetch ALL inventory levels for this variant
+                // Fetch inventory levels
                 $inventoryResp = Http::withHeaders([
                     'X-Shopify-Access-Token' => $accessToken
                 ])->get("https://{$shop}/admin/api/2024-04/inventory_levels.json", [
@@ -135,98 +134,38 @@ class ProxyController extends Controller
                 }
 
                 $levels = $inventoryResp['inventory_levels'];
-                $productLocations = [];
-                $productLocationNames = [];
+                if (!empty($levels)) {
+                    $locationId = $levels[0]['location_id'];
+                    $locationInfo = $locationMap[$locationId] ?? ['name' => 'Unknown', 'country' => 'Unknown'];
+                    $locationName = $locationInfo['name'];
+                    $shippingCountry = $locationInfo['country'];
 
-                // Check all inventory levels for this product
-                foreach ($levels as $level) {
-                    // Only consider locations with available inventory
-                    if (isset($level['available']) && $level['available'] > 0) {
-                        $locationId = $level['location_id'];
-                        $locationInfo = $locationMap[$locationId] ?? ['name' => 'Unknown', 'country' => 'Unknown'];
-                        
-                        $productLocations[] = $locationId;
-                        $productLocationNames[] = $locationInfo['country'];
-                    }
-                }
+                    $allLocations[] = $locationId;
 
-                // Remove duplicates
-                $productLocations = array_unique($productLocations);
-                $productLocationNames = array_unique($productLocationNames);
-
-                // Check if this product is available in multiple locations
-                if (count($productLocations) > 1) {
-                    $hasMultiLocationProducts = true;
-                    
                     $conflicts[] = [
                         'name' => "{$productTitle} - {$variant['title']} / {$variant['sku']}",
-                        'locations' => $productLocationNames,
-                        'shipping_countries' => $productLocationNames,
+                        'location' => $locationName,
+                        'shipping_country' => $shippingCountry,
                         'sku' => $variant['sku'] ?? '',
-                        'size' => $size,
-                        'reason' => 'Product available in multiple locations: ' . implode(', ', $productLocationNames)
+                        'size' => $size
                     ];
-
-                    Log::warning('Product found in multiple locations', [
-                        'variant_id' => $variantId,
-                        'product_title' => $productTitle,
-                        'locations' => $productLocationNames,
-                        'location_count' => count($productLocations)
-                    ]);
-                } else {
-                    // Single location product
-                    if (!empty($productLocations)) {
-                        $locationInfo = $locationMap[$productLocations[0]] ?? ['name' => 'Unknown', 'country' => 'Unknown'];
-                        $allProductLocations[] = $productLocations[0];
-                        
-                        $conflicts[] = [
-                            'name' => "{$productTitle} - {$variant['title']} / {$variant['sku']}",
-                            'location' => $locationInfo['name'],
-                            'shipping_country' => $locationInfo['country'],
-                            'sku' => $variant['sku'] ?? '',
-                            'size' => $size,
-                            'reason' => 'Single location: ' . $locationInfo['country']
-                        ];
-                    }
                 }
             }
 
-            // Check if products from different single locations exist
-            $uniqueSingleLocations = array_unique($allProductLocations);
-            $hasDifferentSingleLocations = count($uniqueSingleLocations) > 1;
-
-            // Determine if checkout should be allowed
-            $allowCheckout = !$hasMultiLocationProducts && !$hasDifferentSingleLocations;
-
-            $response = [
-                'allow_checkout' => $allowCheckout,
-                'conflicts' => $conflicts
-            ];
-
-            // Add detailed reasoning
-            if ($hasMultiLocationProducts) {
-                $response['reason'] = 'Some products are available in multiple locations';
-                $response['conflict_type'] = 'multi_location_products';
-            } elseif ($hasDifferentSingleLocations) {
-                $response['reason'] = 'Products are from different single locations';
-                $response['conflict_type'] = 'different_single_locations';
-                $response['locations'] = $uniqueSingleLocations;
-            } else {
-                $response['reason'] = 'All products are from the same single location';
-                $response['conflict_type'] = 'none';
-            }
+            $uniqueLocations = array_unique($allLocations);
 
             Log::info('Cart check completed', [
                 'shop' => $shop,
                 'variant_ids' => $variantIds,
-                'allow_checkout' => $allowCheckout,
-                'has_multi_location_products' => $hasMultiLocationProducts,
-                'has_different_single_locations' => $hasDifferentSingleLocations,
-                'unique_single_locations' => count($uniqueSingleLocations),
-                'reason' => $response['reason']
+                'unique_locations' => count($uniqueLocations),
+                'allow_checkout' => count($uniqueLocations) <= 1
             ]);
 
-            return response()->json($response);
+            return response()->json([
+                'allow_checkout' => count($uniqueLocations) <= 1,
+                'locations' => $uniqueLocations,
+                'conflicts' => count($uniqueLocations) > 1 ? $conflicts : []
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Proxy handler exception', [
