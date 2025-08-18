@@ -3,7 +3,7 @@ let lastVariantIds = '';
 let locationTagCache = null;
 
 function loadExternalCSS() {
-  const baseUrl = 'https://d2adbr6adc.eu-west-1.awsapprunner.com';
+  const baseUrl = 'https://picks-street-egg-big.trycloudflare.com';
   const cssUrl = `${baseUrl}/cart.css`;
   if (!document.querySelector(`link[href="${cssUrl}"]`)) {
     const link = document.createElement('link');
@@ -84,7 +84,7 @@ async function validateCartBeforeCheckout() {
             return false;
         }
 
-        const url = `/apps/browns-checkout-control?shop=${shop}&variant_ids=${variantIds}`;
+        const url = `/apps/local-check-single-location?shop=${shop}&variant_ids=${variantIds}`;
         const response = await fetch(url);
         const data = await response.json();
 
@@ -116,7 +116,7 @@ function insertLocationTagsInCart(conflicts) {
         const locationMap = {};
         for (const item of conflicts) {
             const key = `${item.sku}-${item.size}`;
-            locationMap[key] = item.location;
+            locationMap[key] = item.shipping_country;
         }
 
         // Process both cart and drawer
@@ -160,12 +160,17 @@ function injectLocationButtons(conflicts) {
 
     if (containers.length === 0 || !conflicts || conflicts.length < 2) return;
 
+    // console.log('conflicts',conflicts)
+
     // Prepare grouped data
     const result = conflicts.reduce((acc, item) => {
         const key = `${item.sku}-${item.size}`;
-        acc.grouped[item.location] = acc.grouped[item.location] || [];
-        acc.grouped[item.location].push(key);
-        acc.locationByName[key] = item.location;
+        // acc.grouped[item.location] = acc.grouped[item.location] || [];
+        // acc.grouped[item.location].push(key);
+        // acc.locationByName[key] = item.location;
+        acc.grouped[item.shipping_country] = acc.grouped[item.shipping_country] || [];
+        acc.grouped[item.shipping_country].push(key);
+        acc.locationByName[key] = item.shipping_country;
         return acc;
     }, { grouped: {}, locationByName: {} });
 

@@ -25,7 +25,7 @@ Route::get('/shopify/install', [ShopifyController::class, 'install']);
 Route::get('/shopify/callback', [ShopifyController::class, 'callback'])->name('shopify.callback');
 
 // App proxy handler
-Route::get('/checkout-proxy-handler', [ProxyController::class, 'handle']);
+Route::get('/proxy-handler-local', [ProxyController::class, 'handle']);
 
 Route::get('/', function (Request $request) {
     $shop = request()->get('shop'); // Get ?shop= param if passed
