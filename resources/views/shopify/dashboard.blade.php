@@ -116,7 +116,7 @@
       <div class="shop-name">Store: <strong>{{ $shop }}</strong></div>
     </div>
 
-    <div class="card">
+    <div class="card" style="display:none;">
       <h2>Danger Zone</h2>
       <p>This will permanently delete shop data from the database.</p>
 
