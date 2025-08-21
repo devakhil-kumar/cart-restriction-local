@@ -27,6 +27,7 @@ class ProxyController extends Controller
         }
 
         $accessToken = $this->getShopToken($shop);
+        echo"<pre>"; print_r($accessToken);  die;
         if (!$accessToken) {
             Log::error('Access token not found for shop', ['shop' => $shop]);
             return response()->json(['error' => 'Access token not found'], 403);
@@ -154,9 +155,9 @@ class ProxyController extends Controller
 
             $uniqueLocations = array_unique($allLocations);
 
-            // echo"<pre>"; print_r($shop);  echo"</br>";
-            // echo"<pre>"; print_r($accessToken);  echo"</br>";
-            // echo"<pre>"; print_r($uniqueLocations);  die;
+            echo"<pre>"; print_r($shop);  echo"</br>";
+            echo"<pre>"; print_r($accessToken);  echo"</br>";
+            echo"<pre>"; print_r($uniqueLocations);  die;
 
             return response()->json([
                 'allow_checkout' => count($uniqueLocations) <= 1,
