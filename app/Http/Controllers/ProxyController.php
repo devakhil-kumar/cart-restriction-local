@@ -154,10 +154,9 @@ class ProxyController extends Controller
 
             $uniqueLocations = array_unique($allLocations);
 
-            echo"<pre>"; print_r($shop);  echo"</br>";
             // echo"<pre>"; print_r($shop);  echo"</br>";
-            echo"<pre>"; print_r($accessToken);  echo"</br>";
-            echo"<pre>"; print_r($uniqueLocations);  die;
+            // echo"<pre>"; print_r($accessToken);  echo"</br>";
+            // echo"<pre>"; print_r($uniqueLocations);  die;
 
             return response()->json([
                 'allow_checkout' => count($uniqueLocations) <= 1,

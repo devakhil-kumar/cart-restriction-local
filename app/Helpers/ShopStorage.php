@@ -28,7 +28,7 @@ class ShopStorage
         try {
             $shop = Shop::findByDomain($shopDomain);
 
-            echo"<pre>"; print_r($shop);  die;
+            // echo"<pre>"; print_r($shop);  die;
 
             return $shop ? $shop->access_token : null;
         } catch (\Exception $e) {
