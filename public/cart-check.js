@@ -108,134 +108,47 @@ async function validateCartBeforeCheckout() {
     }
 }
 
-// function insertLocationTagsInCart(conflicts) {
-//     try {
-//         if (!conflicts || conflicts.length === 0) return;
-
-//         // Create a map of key -> location
-//         const locationMap = {};
-//         for (const item of conflicts) {
-//             const key = `${item.sku}-${item.size}`;
-//             locationMap[key] = item.shipping_country;
-//         }
-
-//         // Process both cart and drawer
-//         const dlElements = document.querySelectorAll('dl');
-
-//         dlElements.forEach(dl => {
-//             const text = dl.textContent.replace(/\s+/g, ' ').trim();
-
-//             // Extract SKU and Size
-//             const skuMatch = text.match(/VendorSKU:\s*([^\s,]+)/i);
-//             const sizeMatch = text.match(/Size:\s*([^\s,]+)/i);
-
-//             if (!skuMatch || !sizeMatch) return;
-
-//             const sku = skuMatch[1].trim();
-//             const size = sizeMatch[1].trim();
-//             const key = `${sku}-${size}`;
-
-//             const location = locationMap[key];
-//             if (!location) return;
-
-//             // Avoid duplicates
-//             if (dl.querySelector('.location-tag')) return;
-
-//             const locationTag = document.createElement('div');
-//             locationTag.className = 'location-tag';
-//             locationTag.textContent = `Shipping From ${location}`;
-//             locationTag.style.cssText = 'font-family: NHaasGrotesk-Regular; letter-spacing: .05rem; line-height: 1.7; font-size: 14px; text-transform: capitalize; color:#df1818; margin-top: 6px;';
-//             dl.appendChild(locationTag);
-//         });
-//     } catch (err) {
-//         console.warn('[Location Tag Error]', err);
-//     }
-// }
-
 function insertLocationTagsInCart(conflicts) {
     try {
-        console.warn('=== START insertLocationTagsInCart ===');
-        console.log('Conflicts received:', conflicts);
-        
-        if (!conflicts || conflicts.length === 0) {
-            console.warn('No conflicts data provided');
-            return;
-        }
+        if (!conflicts || conflicts.length === 0) return;
 
         // Create a map of key -> location
         const locationMap = {};
         for (const item of conflicts) {
             const key = `${item.sku}-${item.size}`;
             locationMap[key] = item.shipping_country;
-            console.log(`Added to locationMap: "${key}" -> "${item.shipping_country}"`);
         }
-        
-        console.log('Complete locationMap:', locationMap);
 
         // Process both cart and drawer
         const dlElements = document.querySelectorAll('dl');
-        console.log('dlElements', dlElements);
-        
-        dlElements.forEach((dl, index) => {
+
+        dlElements.forEach(dl => {
             const text = dl.textContent.replace(/\s+/g, ' ').trim();
-            console.log(`DL ${index + 1} text:`, text);
 
             // Extract SKU and Size
             const skuMatch = text.match(/VendorSKU:\s*([^\s,]+)/i);
             const sizeMatch = text.match(/Size:\s*([^\s,]+)/i);
 
-            console.log(`DL ${index + 1} skuMatch:`, skuMatch);
-            console.log(`DL ${index + 1} sizeMatch:`, sizeMatch);
-
-            if (!skuMatch || !sizeMatch) {
-                console.log(`DL ${index + 1}: Missing SKU or Size match`);
-                return;
-            }
+            if (!skuMatch || !sizeMatch) return;
 
             const sku = skuMatch[1].trim();
             const size = sizeMatch[1].trim();
             const key = `${sku}-${size}`;
 
-            console.log(`DL ${index + 1}: SKU="${sku}", Size="${size}", Key="${key}"`);
-
             const location = locationMap[key];
-            console.log(`DL ${index + 1}: Looking up key "${key}" -> Location: "${location}"`);
-
-            if (!location) {
-                console.log(`DL ${index + 1}: No location found for key "${key}"`);
-                console.log('Available keys in locationMap:', Object.keys(locationMap));
-                return;
-            }
+            if (!location) return;
 
             // Avoid duplicates
-            if (dl.querySelector('.location-tag')) {
-                console.log(`DL ${index + 1}: Location tag already exists`);
-                return;
-            }
-            
-            console.log(`DL ${index + 1}: Creating location tag for "${location}"`);
-            
+            if (dl.querySelector('.location-tag')) return;
+
             const locationTag = document.createElement('div');
             locationTag.className = 'location-tag';
             locationTag.textContent = `Shipping From ${location}`;
-            locationTag.style.cssText = `
-                font-family: NHaasGrotesk-Regular; 
-                letter-spacing: .05rem; 
-                line-height: 1.7; 
-                font-size: 14px; 
-                text-transform: capitalize; 
-                color: #df1818; 
-                margin-top: 6px;
-                font-weight: 500;
-            `;
-            
+            locationTag.style.cssText = 'font-family: NHaasGrotesk-Regular; letter-spacing: .05rem; line-height: 1.7; font-size: 14px; text-transform: capitalize; color:#df1818; margin-top: 6px;';
             dl.appendChild(locationTag);
-            console.log(`DL ${index + 1}: Location tag added successfully!`);
         });
-        
-        console.warn('=== END insertLocationTagsInCart ===');
     } catch (err) {
-        console.error('[Location Tag Error]', err);
+        console.warn('[Location Tag Error]', err);
     }
 }
 
