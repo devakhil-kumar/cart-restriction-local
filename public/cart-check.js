@@ -162,13 +162,14 @@ async function validateCartBeforeCheckout() {
 // }
 
 
+// InsertLocationTagsInCart Final Version Working
 function insertLocationTagsInCart(conflicts) {
     try {
-        console.warn('=== START insertLocationTagsInCart ===');
-        console.log('Conflicts received:', conflicts);
+        // console.warn('=== START insertLocationTagsInCart ===');
+        // console.log('Conflicts received:', conflicts);
         
         if (!conflicts || conflicts.length === 0) {
-            console.warn('No conflicts data provided');
+            // console.warn('No conflicts data provided');
             return;
         }
 
@@ -177,28 +178,28 @@ function insertLocationTagsInCart(conflicts) {
         for (const item of conflicts) {
             const key = `${item.sku}-${item.size}`;
             locationMap[key] = item.shipping_country;
-            console.log(`Added to locationMap: "${key}" -> "${item.shipping_country}"`);
+            // console.log(`Added to locationMap: "${key}" -> "${item.shipping_country}"`);
         }
         
-        console.log('Complete locationMap:', locationMap);
+        // console.log('Complete locationMap:', locationMap);
 
         // Process both cart and drawer
         const dlElements = document.querySelectorAll('dl');
-        console.log('dlElements', dlElements);
+        // console.log('dlElements', dlElements);
         
         dlElements.forEach((dl, index) => {
             const text = dl.textContent.replace(/\s+/g, ' ').trim();
-            console.log(`DL ${index + 1} text:`, text);
+            // console.log(`DL ${index + 1} text:`, text);
 
             // Extract SKU and Size
             const skuMatch = text.match(/VendorSKU:\s*([^\s,]+)/i);
             const sizeMatch = text.match(/Size:\s*(.+?)(?=VendorSKU)/i);
 
-            console.log(`DL ${index + 1} skuMatch:`, skuMatch);
-            console.log(`DL ${index + 1} sizeMatch:`, sizeMatch);
+            // console.log(`DL ${index + 1} skuMatch:`, skuMatch);
+            // console.log(`DL ${index + 1} sizeMatch:`, sizeMatch);
 
             if (!skuMatch || !sizeMatch) {
-                console.log(`DL ${index + 1}: Missing SKU or Size match`);
+                // console.log(`DL ${index + 1}: Missing SKU or Size match`);
                 return;
             }
 
@@ -206,24 +207,24 @@ function insertLocationTagsInCart(conflicts) {
             const size = sizeMatch[1].trim();
             const key = `${sku}-${size}`;
 
-            console.log(`DL ${index + 1}: SKU="${sku}", Size="${size}", Key="${key}"`);
+            // console.log(`DL ${index + 1}: SKU="${sku}", Size="${size}", Key="${key}"`);
 
             const location = locationMap[key];
-            console.log(`DL ${index + 1}: Looking up key "${key}" -> Location: "${location}"`);
+            // console.log(`DL ${index + 1}: Looking up key "${key}" -> Location: "${location}"`);
 
             if (!location) {
-                console.log(`DL ${index + 1}: No location found for key "${key}"`);
-                console.log('Available keys in locationMap:', Object.keys(locationMap));
+                // console.log(`DL ${index + 1}: No location found for key "${key}"`);
+                // console.log('Available keys in locationMap:', Object.keys(locationMap));
                 return;
             }
 
             // Avoid duplicates
             if (dl.querySelector('.location-tag')) {
-                console.log(`DL ${index + 1}: Location tag already exists`);
+                // console.log(`DL ${index + 1}: Location tag already exists`);
                 return;
             }
             
-            console.log(`DL ${index + 1}: Creating location tag for "${location}"`);
+            // console.log(`DL ${index + 1}: Creating location tag for "${location}"`);
             
             const locationTag = document.createElement('div');
             locationTag.className = 'location-tag';
@@ -240,10 +241,10 @@ function insertLocationTagsInCart(conflicts) {
             `;
             
             dl.appendChild(locationTag);
-            console.log(`DL ${index + 1}: Location tag added successfully!`);
+            // console.log(`DL ${index + 1}: Location tag added successfully!`);
         });
         
-        console.warn('=== END insertLocationTagsInCart ===');
+        // console.warn('=== END insertLocationTagsInCart ===');
     } catch (err) {
         console.error('[Location Tag Error]', err);
     }
