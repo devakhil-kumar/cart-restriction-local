@@ -6,6 +6,18 @@ use App\Http\Controllers\ProxyController;
 use App\Helpers\ShopStorage;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Artisan;
+use App\Models\Shop;
+
+Route::delete('/shop/{shop}', function ($shopDomain, Request $request) {
+    $shop = Shop::findByDomain($shopDomain);
+
+    if ($shop) {
+        $shop->delete();
+        return redirect('/')->with('status', 'Shop data deleted successfully!');
+    }
+
+    return redirect('/')->with('error', 'Shop not found.');
+})->name('shop.delete');
 
 Route::get('/clear-cache', function () {
     Artisan::call('config:clear');

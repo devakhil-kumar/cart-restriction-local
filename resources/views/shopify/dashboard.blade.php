@@ -116,6 +116,17 @@
       <div class="shop-name">Store: <strong>{{ $shop }}</strong></div>
     </div>
 
+    <div class="card">
+      <h2>Danger Zone</h2>
+      <p>This will permanently delete shop data from the database.</p>
+
+      <form action="{{ route('shop.delete', $shop) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this shop? This cannot be undone.');">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn" style="background:#e3342f;">Delete Shop Data</button>
+      </form>
+    </div>
+
     <div class="content">
       <div class="card">
         <h2>Manage Rules</h2>
