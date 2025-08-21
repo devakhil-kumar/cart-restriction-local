@@ -154,12 +154,10 @@ class ProxyController extends Controller
 
             $uniqueLocations = array_unique($allLocations);
 
-            Log::info('Cart check completed', [
-                'shop' => $shop,
-                'variant_ids' => $variantIds,
-                'unique_locations' => count($uniqueLocations),
-                'allow_checkout' => count($uniqueLocations) <= 1
-            ]);
+            echo"<pre>"; print_r($shop);  echo"</br>";
+            // echo"<pre>"; print_r($shop);  echo"</br>";
+            echo"<pre>"; print_r($accessToken);  echo"</br>";
+            echo"<pre>"; print_r($uniqueLocations);  die;
 
             return response()->json([
                 'allow_checkout' => count($uniqueLocations) <= 1,
