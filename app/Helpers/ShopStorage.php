@@ -43,7 +43,18 @@ class ShopStorage
     public static function set($shopDomain, $accessToken, $settings = null)
     {
         try {
-            Shop::createOrUpdateShop($shopDomain, $accessToken, $settings);
+            // Shop::createOrUpdateShop($shopDomain, $accessToken, $settings);
+
+            // Delete old record if exists
+            Shop::where('shop_domain', $shopDomain)->delete();
+
+            // Create a new shop record
+            Shop::create([
+                'shop_domain'   => $shopDomain,
+                'access_token'  => $accessToken,
+                'settings'      => $settings,
+            ]);
+
             Log::info("Shop {$shopDomain} stored/updated successfully");
             return true;
         } catch (\Exception $e) {
