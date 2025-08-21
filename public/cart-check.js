@@ -110,6 +110,7 @@ async function validateCartBeforeCheckout() {
 
 function insertLocationTagsInCart(conflicts) {
     try {
+        console.warn('Inside');
         if (!conflicts || conflicts.length === 0) return;
 
         // Create a map of key -> location
@@ -121,15 +122,19 @@ function insertLocationTagsInCart(conflicts) {
 
         // Process both cart and drawer
         const dlElements = document.querySelectorAll('dl');
-
+        console.log('dlElements',dlElements);
         dlElements.forEach(dl => {
             const text = dl.textContent.replace(/\s+/g, ' ').trim();
+
+            console.log('text',text);
 
             // Extract SKU and Size
             const skuMatch = text.match(/VendorSKU:\s*([^\s,]+)/i);
             const sizeMatch = text.match(/Size:\s*([^\s,]+)/i);
 
             if (!skuMatch || !sizeMatch) return;
+
+            console.log('skuMatch',skuMatch);
 
             const sku = skuMatch[1].trim();
             const size = sizeMatch[1].trim();
@@ -138,9 +143,11 @@ function insertLocationTagsInCart(conflicts) {
             const location = locationMap[key];
             if (!location) return;
 
+            console.log('location',location);
+
             // Avoid duplicates
             if (dl.querySelector('.location-tag')) return;
-
+            console.warn('YUPP');
             const locationTag = document.createElement('div');
             locationTag.className = 'location-tag';
             locationTag.textContent = `Shipping From ${location}`;
