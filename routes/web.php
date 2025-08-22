@@ -19,9 +19,6 @@ Route::delete('/shop/{shop}', function ($shopDomain, Request $request) {
 
 Route::get('/clear-cache', function () {
     Artisan::call('config:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
     
     return 'Config, cache, route, and view caches cleared!';
 });
