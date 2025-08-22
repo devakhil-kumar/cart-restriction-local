@@ -1,0 +1,3 @@
+[[volumes]]
+name = "storage"
+mountPath = "/app/storage"

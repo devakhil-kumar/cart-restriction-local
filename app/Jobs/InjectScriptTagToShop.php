@@ -24,7 +24,7 @@ class InjectScriptTagToShop implements ShouldQueue
     public function __construct($shopDomain, $accessToken = null)
     {
         $this->shopDomain = $shopDomain;
-        $this->accessToken = $accessToken; // Keep for backward compatibility
+        $this->accessToken = $accessToken;
     }
 
     /**
@@ -32,7 +32,6 @@ class InjectScriptTagToShop implements ShouldQueue
      */
     public function handle()
     {
-        // Get access token from SQLite database
         $accessToken = ShopStorage::get($this->shopDomain);
         
         if (!$accessToken) {

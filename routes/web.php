@@ -6,13 +6,11 @@ use App\Http\Controllers\ProxyController;
 use App\Helpers\ShopStorage;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Artisan;
-use App\Models\Shop;
 
 Route::delete('/shop/{shop}', function ($shopDomain, Request $request) {
-    $shop = Shop::findByDomain($shopDomain);
+    $deleted = ShopStorage::delete($shopDomain); // Changed from Shop model
 
-    if ($shop) {
-        $shop->delete();
+    if ($deleted) {
         return redirect('/')->with('status', 'Shop data deleted successfully!');
     }
 
@@ -26,6 +24,15 @@ Route::get('/clear-cache', function () {
     Artisan::call('view:clear');
     
     return 'Config, cache, route, and view caches cleared!';
+});
+
+// Debug route to check JSON file status
+Route::get('/debug-storage', function () {
+    if (!app()->environment('production')) {
+        $info = ShopStorage::getFileInfo();
+        return response()->json($info, 200, [], JSON_PRETTY_PRINT);
+    }
+    return abort(404);
 });
 
 Route::get('/cart-check.js', function () {
@@ -50,7 +57,6 @@ Route::get('/', function (Request $request) {
     }
 
     try {
-        // Check if shop exists and has valid access token
         $shopModel = ShopStorage::getShop($shop);
         
         if ($shopModel && $shopModel->access_token) {

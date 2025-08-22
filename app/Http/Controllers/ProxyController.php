@@ -154,10 +154,6 @@ class ProxyController extends Controller
 
             $uniqueLocations = array_unique($allLocations);
 
-            // echo"<pre>"; print_r($shop);  echo"</br>";
-            // echo"<pre>"; print_r($accessToken);  echo"</br>";
-            // echo"<pre>"; print_r($uniqueLocations);  die;
-
             return response()->json([
                 'allow_checkout' => count($uniqueLocations) <= 1,
                 'locations' => $uniqueLocations,
@@ -176,7 +172,6 @@ class ProxyController extends Controller
 
     /**
      * Validate signatures from Shopify
-     * Returns: boolean (true if valid, false if invalid)
      */
     private function validateSignature($params, $signature)
     {
@@ -203,12 +198,11 @@ class ProxyController extends Controller
     }
 
     /**
-     * Get access token for shop from database
+     * Get access token for shop from JSON file
      */
     private function getShopToken($shop)
     {
         try {
-            // ShopStorage::get() now returns the decrypted token directly
             $accessToken = ShopStorage::get($shop);
             
             if (!$accessToken) {

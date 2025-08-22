@@ -65,18 +65,18 @@ class ShopifyController extends Controller
 
             $accessToken = $response['access_token'];
             
-            // Store in SQLite database
+            // Store in JSON file using ShopStorage
             $stored = ShopStorage::set($shop, $accessToken);
             
             if (!$stored) {
-                Log::error('Failed to store access token in database', ['shop' => $shop]);
+                Log::error('Failed to store access token in JSON file', ['shop' => $shop]);
                 abort(500, 'Failed to store authentication data');
             }
 
             // Set session data
             session(['shop' => $shop, 'access_token' => $accessToken]);
 
-            // Inject ScriptTag with APP_URL (job will get token from database)
+            // Inject ScriptTag with APP_URL (job will get token from JSON file)
             InjectScriptTagToShop::dispatch($shop);
 
             Log::info("Shop {$shop} installed successfully");
@@ -114,7 +114,7 @@ class ShopifyController extends Controller
         
         if ($shop) {
             ShopStorage::delete($shop);
-            Log::info("Shop {$shop} uninstalled and removed from database");
+            Log::info("Shop {$shop} uninstalled and removed from JSON file");
         }
 
         return response()->json(['status' => 'success']);
