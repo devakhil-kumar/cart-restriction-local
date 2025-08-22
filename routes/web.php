@@ -25,10 +25,10 @@ Route::get('/clear-cache', function () {
 
 // Debug route to check JSON file status
 Route::get('/debug-storage', function () {
-    // if (!app()->environment('production')) {
+    if (!app()->environment('production')) {
         $info = ShopStorage::getFileInfo();
         return response()->json($info, 200, [], JSON_PRETTY_PRINT);
-    // }
+    }
     return abort(404);
 });
 
